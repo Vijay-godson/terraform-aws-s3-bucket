@@ -17,6 +17,20 @@ resource "aws_s3_bucket" "this" {
   }
 }
 
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_logging" "this" {
+  bucket        = aws_s3_bucket.this.id
+  target_bucket = var.log_bucket
+  target_prefix = "${var.bucket_name}/"
+}
+
+#tfsec:ignore:aws-s3-encryption-customer-key -- SSE-S3 is the accepted baseline for this bucket tier; CMK required only for buckets tagged Sensitivity=high
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   bucket = aws_s3_bucket.this.id
   rule {
